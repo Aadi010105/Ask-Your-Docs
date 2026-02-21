@@ -1,0 +1,21 @@
+# Secrets
+.env
+.env.local
+
+# Vector DB (regenerate with create_database.py)
+chroma/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+env/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
