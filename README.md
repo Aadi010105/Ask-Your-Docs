@@ -1,75 +1,69 @@
-# Ask-Your-Docs
+# Ask-Your-Docs (Optimized RAG)
 
-A **Retrieval-Augmented Generation (RAG)** application built with **LangChain** and **OpenAI**. Turn your documents into a Q&A chatbot or use your data as the source for interactive AI applications.
+A high-performance **Retrieval-Augmented Generation (RAG)** application built with **LangChain**, **Groq (Llama 3)**, and **HuggingFace Embeddings**. Turn your local documents into an intelligent, context-aware Q&A system.
 
 ---
 
 ## What it does
 
-- Ask questions over a large set of documents and get answers grounded in your content.
-- Build chatbots (e.g. customer support) that follow instructions and cite sources.
-
-The app chunks your text, embeds it with OpenAI, stores it in [Chroma](https://www.trychroma.com/), then uses similarity search + an LLM to answer queries with source references.
+- **Multi-Format Support**: Query both Markdown (`.md`) and PDF (`.pdf`) documents seamlessly.
+- **Cost-Efficient & Fast**: Uses local embeddings to save costs and the Groq API for lightning-fast LLM responses.
+- **Accurate Grounding**: Follows a "Precise Assistant" prompt to ensure answers are based strictly on your data, citing specific sources for every response.
 
 ---
 
 ## How it works
 
-1. **Chunk** — Split documents into small text segments (e.g. 500–1000 characters with overlap). This keeps retrieval precise and reduces cost by sending only relevant parts to the LLM.
-2. **Embed & store** — Turn chunks into vector embeddings and store them in a Chroma database. Embeddings capture meaning and similarity so we can find relevant passages for each query.
-3. **Retrieve** — For each user question, run a similarity search and fetch the most relevant chunks.
-4. **Generate** — The OpenAI model answers using only those chunks as context and returns the answer plus the source documents.
-
----
-
-## Example output
-
-After running a query, the script prints the prompt, the model’s answer, and the source files used.
+1. **Intelligent Chunking**: Splits documents into 1200-character segments with 300-character overlap. This is optimized for narrative context and complex documentation.
+2. **Local Embedding**: Uses the `BAAI/bge-base-en-v1.5` model to generate high-quality vector embeddings locally (no API cost for embedding).
+3. **Vector Storage**: Stores embeddings in a local [Chroma](https://www.trychroma.com/) database for instant retrieval.
+4. **Smart Retrieval**: Fetches the top 6 most relevant document chunks for every query.
+5. **Generation**: Uses the **Llama-3.1-8b-instant** model via Groq to synthesize an answer based *only* on the retrieved context.
 
 ---
 
 ## Setup
 
 ### 1. Get the project
-
 Clone or download this repository, then open a terminal in the project directory.
 
-### 2. OpenAI API key
+### 2. Configure Environment
+- Get a free API key from the [Groq Console](https://console.groq.com/keys).
+- In the project root, create a `.env` file and add your key:
 
-- Create an API key at [platform.openai.com/api-keys](https://platform.openai.com/api-keys).
-- In the project root, create a `.env` file and add:
-
+  ```env
+  GROQ_API_KEY="your_groq_api_key_here"
   ```
-  OPENAI_API_KEY="your_generated_secret_key"
-  ```
 
-- Ensure `.env` is in your `.gitignore` so the key is not committed.
-
-### 3. (Optional) Use your own documents
-
-- Put your `.md` files in the `data` directory (or another folder of your choice).
-- In `create_database.py`, set `DATA_PATH` to that directory, e.g. `DATA_PATH = "data"` or `DATA_PATH = "data/your_folder"`.
+### 3. Add your documents
+- Place your `.md` and `.pdf` files into the `data/small_sample` directory.
+- If you use a different folder, update the `DATA_PATH` in `create_database.py`.
 
 ---
 
 ## Run the application
 
-**Install dependencies:**
-
+**1. Install dependencies:**
+*(Recommended: Use a virtual environment)*
 ```bash
-pip install -r requirements.txt
+pip install langchain langchain-community langchain-huggingface langchain-chroma langchain-groq sentence-transformers pypdf python-dotenv
 ```
 
-**Build the vector database (run once, or when you change documents):**
-
+**2. Build the vector database:**
+Run this whenever you add or change your documents.
 ```bash
 python create_database.py
 ```
 
-**Ask questions:**
-
+**3. Ask questions:**
 ```bash
-python query_data.py "What operating systems does EC2 support"
+python query_data.py "Your question here"
 ```
 
-The script prints the prompt, the model’s answer, and the source files used.
+---
+
+## Project Structure
+- `create_database.py`: Handles document loading, splitting, and vector database creation.
+- `query_data.py`: Handles the RAG pipeline—retrieval, prompt construction, and LLM interaction.
+- `data/`: The directory where your knowledge base (PDFs/Markdown) is stored.
+- `chroma/`: The local directory where the vector database is persisted.
